@@ -9898,6 +9898,20 @@ _get_PTP_Manufacturer_STR(CONFIG_GET_ARGS) {
 	return GP_OK;
 }
 
+static int
+_get_Fuji_CurrentState(CONFIG_GET_ARGS) {
+	PTPParams	*params = &camera->pl->params;
+	int val;
+	PTPPropertyValue propval;
+
+	C_PTP (ptp_getdevicepropvalue (params, PTP_DPC_FUJI_CurrentState, &propval, PTP_DTC_UINT16));
+	val = propval.u16;
+
+	gp_widget_new (GP_WIDGET_TOGGLE, _(menu->label), widget);
+	gp_widget_set_name (*widget,menu->name);
+	gp_widget_set_value  (*widget, &val);
+	return (GP_OK);
+}
 
 static struct submenu camera_actions_menu[] = {
 	/* { N_("Viewfinder Mode"), "viewfinder", PTP_DPC_CANON_ViewFinderMode, PTP_VENDOR_CANON, PTP_DTC_UINT32, _get_Canon_ViewFinderMode, _put_Canon_ViewFinderMode}, */
@@ -9944,6 +9958,8 @@ static struct submenu camera_actions_menu[] = {
 	{ 0,0,0,0,0,0,0 },
 };
 
+
+
 static struct submenu camera_status_menu[] = {
 	{ N_("Serial Number"),          "serialnumber",     0,  0,  PTP_OC_GetDeviceInfo,   _get_PTP_Serial_STR,            _put_None },
 	{ N_("Camera Manufacturer"),    "manufacturer",     0,  0,  PTP_OC_GetDeviceInfo,   _get_PTP_Manufacturer_STR,      _put_None },
@@ -9951,6 +9967,7 @@ static struct submenu camera_status_menu[] = {
 	{ N_("Device Version"),         "deviceversion",    0,  0,  PTP_OC_GetDeviceInfo,   _get_PTP_DeviceVersion_STR,     _put_None },
 	{ N_("Vendor Extension"),       "vendorextension",  0,  0,  PTP_OC_GetDeviceInfo,   _get_PTP_VendorExtension_STR,   _put_None },
 
+	{ N_("Current State"),          "currentstate",     0,                                      PTP_VENDOR_FUJI,    0,              _get_Fuji_CurrentState,         _put_None },
 	{ N_("Camera Model"),           "model",            PTP_DPC_CANON_CameraModel,              PTP_VENDOR_CANON,   PTP_DTC_STR,    _get_STR,                       _put_None },
 	{ N_("Camera Model"),           "model",            PTP_DPC_CANON_EOS_ModelID,              PTP_VENDOR_CANON,   PTP_DTC_UINT32, _get_INT,                       _put_None },
 	{ N_("Firmware Version"),       "firmwareversion",  PTP_DPC_CANON_FirmwareVersion,          PTP_VENDOR_CANON,   PTP_DTC_UINT32, _get_CANON_FirmwareVersion,     _put_None },
