@@ -6957,6 +6957,7 @@ sonyout:
 					continue;
 				event.Code = PTP_EC_ObjectAdded;
 				event.Param1 = handles.Handler[i];
+				GP_LOG_D("Synthesizing PTP_EC_ObjectAdded for handle %x", event.Param1);
 				free (handles.Handler);
 				goto handleregular;
 			}
@@ -7179,6 +7180,7 @@ handleregular:
 		path->name[0]='\0';
 		path->folder[0]='\0';
 
+		GP_LOG_D("PTP_EC_ObjectAdded handle=%x", event.Param1);
 		C_PTP_REP (ptp_object_want (params, event.Param1, PTPOBJECT_OBJECTINFO_LOADED, &ob));
 		strcpy  (path->name,  ob->oi.Filename);
 		sprintf (path->folder,"/"STORAGE_FOLDER_PREFIX"%08lx/",(unsigned long)ob->oi.StorageID);
@@ -9065,7 +9067,8 @@ delete_file_func (CameraFilesystem *fs, const char *folder,
 	 * to be sent. At least on Digital IXUS II and PowerShot A85. But
          * not on 350D.
 	 */
-	if (DELETE_SENDS_EVENT(params) &&
+	if (params->deviceinfo.VendorExtensionID == PTP_VENDOR_FUJI) ||
+	    DELETE_SENDS_EVENT(params) &&
 	    ptp_event_issupported(params, PTP_EC_ObjectRemoved)) {
 		PTPContainer event;
 
@@ -9075,7 +9078,7 @@ delete_file_func (CameraFilesystem *fs, const char *folder,
 				break;
 			if (event.Code == PTP_EC_ObjectAdded) {
 				PTPObject *ob;
-
+				GP_LOG_D("delete_file_func PTP_EC_ObjectAdded after delete: handle %d", event.Param1);
 				ptp_object_want (params, event.Param1, 0, &ob);
 			}
 		}
